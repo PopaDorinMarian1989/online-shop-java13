@@ -54,6 +54,21 @@ public class ProductServiceIntegrationTest {
 		productService.getProduct(999999L);
 	}
 
+	public void testUpdateProduct_whenValidRequest_thenReturnUpadatedProduct(){
+		Product createdProduct = createProduct();
+
+		SaveProductRequest request = new SaveProductRequest();
+		request.setName(createdProduct.getName() + "updated");
+		request.setPrice(createdProduct.getPrice() + 10);
+		request.setQuantity(createdProduct.getQuantity() + 10);
+		request.setDescription(createdProduct.getDescription() + "updated");
+		Product updatedProduct = productService.updateProduct(createdProduct.getId(), request);
+
+
+	}
+
+
+
 	private Product createProduct() {
 		SaveProductRequest request = new SaveProductRequest();
 		request.setName("Banana " + System.currentTimeMillis());
