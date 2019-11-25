@@ -1,6 +1,7 @@
 package org.fasttackit.onlineshop.service;
 
 import org.fasttackit.onlineshop.domain.Product;
+import org.fasttackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttackit.onlineshop.persistance.ProductRepository;
 import org.fasttackit.onlineshop.transfer.SaveProductRequest;
 import org.slf4j.ILoggerFactory;
@@ -33,6 +34,16 @@ public class ProductService {
         product.setImageUrl(request.getImageUrl());
 
         return productRepository.save(product);
+
+    }
+    public Product getProduct(long id) {
+
+        LOGGER.info("Retrieving product {}", id);
+
+        // uusing optional
+       return productRepository.findById(id)
+               // lambda expresion
+               .orElseThrow(()-> new ResourceNotFoundException("Product" + id + " does not exist"));
 
     }
 }
