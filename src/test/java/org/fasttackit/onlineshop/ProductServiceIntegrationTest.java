@@ -72,6 +72,7 @@ public class ProductServiceIntegrationTest {
         assertThat(updatedProduct.getDescription(), is(request.getDescription()));
 
 	}
+
 	@Test(expected = ResourceNotFoundException.class)
 	public void testDeleteProduct_whenExistingProduct_thenProductIsDeleted(){
 	    Product product = createProduct();
