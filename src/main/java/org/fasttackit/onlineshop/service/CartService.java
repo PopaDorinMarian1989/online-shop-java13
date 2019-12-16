@@ -6,12 +6,18 @@ import org.fasttackit.onlineshop.domain.Product;
 import org.fasttackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttackit.onlineshop.persistance.CartRepository;
 import org.fasttackit.onlineshop.transfer.AddProductToCartRequest;
+import org.fasttackit.onlineshop.transfer.CartResponse;
+import org.fasttackit.onlineshop.transfer.ProductInCartResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 
 @Service
@@ -43,6 +49,7 @@ public class CartService {
             Customer customer = customerService.getCustomer(request.getCustomerId());
             cart.setId(customer.getId());
 
+
             cart.setCustomer(customer);
         }
         Product product = productService.getProduct(request.getProductId());
@@ -54,10 +61,32 @@ public class CartService {
 
     }
 
-    public Cart getCart(long id) {
+    @Transactional
+    public CartResponse getCart(long id) {
         LOGGER.info("Retriving cart {}", id);
-        cartRepository.findById(id);
-        return cartRepository.findById(id)
+
+
+        Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart" + id + "does not exist"));
+
+        CartResponse response = new CartResponse();
+        response.setId(cart.getId());
+
+        Set<ProductInCartResponse> productInCart = new HashSet<>();
+
+        Iterator<Product> cartIterator = cart.getProducts().iterator();
+
+        while (cartIterator.hasNext()) {
+            Product product = cartIterator.next();
+            ProductInCartResponse productResponse = new ProductInCartResponse();
+            productResponse.setId(product.getId());
+            productResponse.setName(product.getName());
+            productResponse.setPrice(product.getPrice());
+
+            productInCart.add(productResponse);
+        }
+        response.setProducts(productInCart);
+        return response;
+
     }
 }
