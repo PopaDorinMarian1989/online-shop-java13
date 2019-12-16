@@ -3,6 +3,7 @@ package org.fasttackit.onlineshop.web;
 import org.fasttackit.onlineshop.domain.Product;
 import org.fasttackit.onlineshop.service.ProductService;
 import org.fasttackit.onlineshop.transfer.GetPproductsRequest;
+import org.fasttackit.onlineshop.transfer.ProductResponse;
 import org.fasttackit.onlineshop.transfer.SaveProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
-
+// todo: fix lazy loading for all endpoints
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody @Valid SaveProductRequest request) {
         Product product = productService.createProduct(request);
@@ -38,8 +39,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Product>> getProducts(GetPproductsRequest request, Pageable pageable) {
-        Page<Product> products = productService.getProducts(request, pageable);
+    public ResponseEntity<Page<ProductResponse>> getProducts(GetPproductsRequest request, Pageable pageable) {
+        Page<ProductResponse> products = productService.getProducts(request, pageable);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
