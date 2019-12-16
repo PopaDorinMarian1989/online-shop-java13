@@ -2,6 +2,8 @@ package org.fasttackit.onlineshop.service;
 
 import org.fasttackit.onlineshop.domain.Cart;
 import org.fasttackit.onlineshop.domain.Customer;
+import org.fasttackit.onlineshop.domain.Product;
+import org.fasttackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttackit.onlineshop.persistance.CartRepository;
 import org.fasttackit.onlineshop.transfer.AddProductToCartRequest;
 import org.slf4j.Logger;
@@ -19,16 +21,19 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CustomerService customerService;
+    private final ProductService productService;
 
     @Autowired
 
-    public CartService(CartRepository cartRepository, CustomerService customerService) {
+    public CartService(CartRepository cartRepository, CustomerService customerService, ProductService productService) {
         this.cartRepository = cartRepository;
         this.customerService = customerService;
+        this.productService = productService;
     }
 
     @Transactional
     public void addProductToCart(AddProductToCartRequest request) {
+        LOGGER.info("Adding product to cart: {}", request);
         Cart cart = cartRepository.findById(request.getCustomerId()).orElse(new Cart());
 
         if (cart.getCustomer() == null) {
@@ -36,13 +41,23 @@ public class CartService {
                     request.getCustomerId());
 
             Customer customer = customerService.getCustomer(request.getCustomerId());
+            cart.setId(customer.getId());
 
             cart.setCustomer(customer);
-
         }
+        Product product = productService.getProduct(request.getProductId());
+        cart.addToCart(product);
+
 
         cartRepository.save(cart);
 
 
+    }
+
+    public Cart getCart(long id) {
+        LOGGER.info("Retriving cart {}", id);
+        cartRepository.findById(id);
+        return cartRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart" + id + "does not exist"));
     }
 }
